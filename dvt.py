@@ -1,6 +1,8 @@
 import sys
 import csv
 from tkinter import *
+from tkinter import ttk
+from tkinter import filedialog
 class Network:
     def __init__(self, routers, root):
         self.routers = routers
@@ -57,7 +59,7 @@ class Node:
         count = 0
         for x in range(len(neighbor_table)):
             for y in range(len(neighbor_table[x])):
-                if neighbor_table[x][y] < self.dvt[x][y] and neighbor_table[x][y] < 16 and neighbor_table[x][y] != 0:
+                if neighbor_table[x][y] < self.dvt[x][y] and neighbor_table[x][y] < 16:
                     self.dvt[x][y] = neighbor_table[x][y]
                     self.dvt[y][x] = neighbor_table[y][x]
                     did_change = True
@@ -70,34 +72,42 @@ class GUI:
         self.master = Toplevel(master)
         self.node = node
         self.master.title(title)
-        h = 250
-        w = 400
-        ws = self.master.winfo_screenwidth()
-        hs = self.master.winfo_screenheight()
-
-        x = (ws/2) - (w/2)
-        y = (hs/2) - (h/2)
-
-        self.master.geometry(f"{w}x{h}+{int(x)}+{int(y)}")
-        dvt_label = Label(self.master, text="Distance Vector Table")
-        dvt_label.grid(row=0, column=0)
-        height = 12
-        width = 6
-        for i in range(1,height + 1):
-            if i == 6:
-                routing_label = Label(self.master, text="Routing Table")
-                routing_label.grid(row=i,column=0)
-                continue
-            for j in range(width + 1):
-                b = Entry(self.master, width=10)
-                b.grid(row=i,column=j)
-
+        routing_label = Label(self.master, text="Routing Table").grid(row=0,columnspan=3)
+        cols = ("Source", "Destination", "Weight")
+        tree = ttk.Treeview(self.master, columns=cols, show="headings")
+        for col in cols:
+            tree.heading(col, text=col)
+        tree.grid(row=1,column=0,columnspan=2)
+        idx = 1
+        for x in range(len(self.node.graph)):
+            for y in range(len(self.node.graph[x])):
+                source = x + 1
+                dest = y + 1
+                cost = self.node.graph[x][y]
+                tree.insert("", "end", values=(source,dest,cost))
+                idx += 1
+        dvt_label = Label(self.master, text="Distance Vector Table").grid(row=idx + 1,columnspan=3)
+        dvt_tree = ttk.Treeview(self.master, columns=cols, show="headings")
+        for col in cols:
+            dvt_tree.heading(col, text=col)
+        dvt_tree.grid(row=idx+2,column=0, columnspan=2)
+        for x in range(len(self.node.dvt)):
+            for y in range(len(self.node.dvt[x])):
+                source = x + 1
+                dest = y + 1
+                cost = self.node.dvt[x][y]
+                dvt_tree.insert("", "end", values=(source,dest,cost))
+def askopen(name):
+    name.append(filedialog.askopenfilename())
 
 def main():
     if len(sys.argv) < 2:
         print("usage: [path to file]")
     root = Tk()
-    routers = [x for x in csv.reader(open("input.txt"), delimiter=" ")]
+    filename = []
+    filebtn = Button(root, text="Open input file",command=askopen)
+    filebtn.grid(row=0,column=0)
+    routers = [x for x in csv.reader(open(filename[0]), delimiter=" ")]
     routers = [list(map(int, router)) for router in routers]
     topology = Network(routers, root)
     stable = True
@@ -105,7 +115,8 @@ def main():
     while stable:
         stable = topology.broadcast()
     topology.print()
-    #mainloop()
+    mainloop()
 if __name__ == "__main__":
     main()
+
 
