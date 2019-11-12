@@ -1,0 +1,7 @@
+Edgar Gonzalez
+1001336686
+I compiled and ran all of my code on a Linux environment, specifically Ubuntu 18.04. Compiling my code should be pretty straight forward. You should be able to run it with a basic python distribution, if you cannot, then at a minimum you will need tkinter.
+On a command line:
+python3 dvt.py input.txt
+The program takes in the input as a cmd line argument.
+One of the main drawbacks of my implementation was that it was not flexible enough to allow both the usage of the GUI and the stepping mechanism. Even if it was implemented, it would have been bug riddden and the performance would suffer due to Python and the inefficiences that is tkinter. The actual alogrithm ran surprisingly fast however. I assumed that we would have a max of 6 nodes, but my program is flexible enough to get by this assumption.
